@@ -1,1 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OCR äpp</title>
+</head>
+<body>
+  <h1>Foto OCR ja Google Docsi</h1>
+  <input type="file" accept="image/*" capture="environment" id="photoInput">
+  <br><br>
+  <img id="preview" width="300">
+  <p id="result"></p>
+  <button id="sendBtn">Saada Google Docsi</button>
 
+  <script>
+    const photoInput = document.getElementById('photoInput');
+    const preview = document.getElementById('preview');
+    const result = document.getElementById('result');
+
+    let file;
+
+    photoInput.addEventListener('change', (e) => {
+      file = e.target.files[0];
+      preview.src = URL.createObjectURL(file);
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', async () => {
+      if (!file) return alert('Vali foto!');
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      const res = await fetch('/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+      result.textContent = data.text;
+
+      // Siin saad teha POST Google Scripti URL-ile
+      // fetch('YOUR_GOOGLE_SCRIPT_URL', { method: 'POST', body: JSON.stringify({ tekst: data.text }), headers: {'Content-Type':'application/json'} })
+    });
+  </script>
+</body>
+</html>
