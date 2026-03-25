@@ -2,18 +2,21 @@
 <html>
 <head>
   <title>OCR äpp</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 </head>
 <body>
   <h1>Foto OCR ja Google Docsi</h1>
-  <<input type="file" accept="image/*" capture="environment" id="photoInput">
-<img id="preview" width="300">
-<p id="result"></p>
-<button id="sendBtn">Saada Google Docsi</button>
+  <input type="file" accept="image/*" capture="environment" id="photoInput">
+  <br>
+  <img id="preview" width="300">
+  <p id="result"></p>
+  <button id="sendBtn">Saada Google Docsi</button>
 
   <script>
     const photoInput = document.getElementById('photoInput');
     const preview = document.getElementById('preview');
     const result = document.getElementById('result');
+    const sendBtn = document.getElementById('sendBtn');
 
     let file;
 
@@ -22,18 +25,29 @@
       preview.src = URL.createObjectURL(file);
     });
 
-    document.getElementById('sendBtn').addEventListener('click', async () => {
+    sendBtn.addEventListener('click', async () => {
       if (!file) return alert('Vali foto!');
 
-      const formData = new FormData();
-      formData.append('photo', file);
+      // 1️⃣ loe fail Base64 stringina
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1]; // eemaldab data:image/... osa
 
-      const res = await fetch('/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      result.textContent = data.text;
+        // 2️⃣ tee OCR Tesseract.js-ga
+        const { data: { text } } = await Tesseract.recognize(file, 'eng');
+        result.textContent = text;
 
-      // Siin saad teha POST Google Scripti URL-ile
-      // fetch('https://script.google.com/macros/s/AKfycby4e3-9Yx381EwNQsf1NLPnjROXJkKiZEa1XVQdcgU-4FNXLzfdfjF34zbo4n605w3D/exec', { method: 'POST', body: JSON.stringify({ tekst: data.text }), headers: {'Content-Type':'application/json'} })
+        // 3️⃣ saada Google Apps Scripti Web App URL-ile
+        fetch('SINU_WEB_APP_URL', {  // pane siia oma Web App URL
+          method: 'POST',
+          body: JSON.stringify({ tekst: text, pilt: base64 }),
+          headers: { 'Content-Type': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(res => alert('Tekst ja pilt saadetud Google Docsi!'))
+        .catch(err => alert('Viga Google Docsi saatmisel: ' + err));
+      };
+      reader.readAsDataURL(file); // Base64 string
     });
   </script>
 </body>
