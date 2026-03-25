@@ -38,7 +38,7 @@
         result.textContent = text;
 
         // 3️⃣ saada Google Apps Scripti Web App URL-ile
-        fetch('SINU_WEB_APP_URL', {  // pane siia oma Web App URL
+        fetch('https://script.google.com/macros/s/AKfycby54zHcrW_QG38z8Qb8Q3CfzXmGt8P5Bkda_sTTAmflXfL8vsVxIA6YHaTieSf1VkFw/exec', {  // pane siia oma Web App URL
           method: 'POST',
           body: JSON.stringify({ tekst: text, pilt: base64 }),
           headers: { 'Content-Type': 'application/json' }
